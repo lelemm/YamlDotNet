@@ -69,7 +69,7 @@ namespace YamlDotNet.Serialization.ValueDeserializers
 
                 foreach (var deserializer in deserializers)
                 {
-                    if (deserializer.Deserialize(parser, nodeType, (r, t) => nestedObjectDeserializer.DeserializeValue(r, t, state, nestedObjectDeserializer), out var value, deserializers))
+                    if (deserializer.Deserialize(parser, nodeType, (r, t) => nestedObjectDeserializer.DeserializeValue(r, t, state, nestedObjectDeserializer), out var value))
                     {
                         return TypeConverter.ChangeType(value, expectedType);
                     }
