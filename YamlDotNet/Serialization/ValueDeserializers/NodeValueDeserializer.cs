@@ -21,8 +21,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
+using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization.Utilities;
 
 namespace YamlDotNet.Serialization.ValueDeserializers
@@ -45,9 +47,29 @@ namespace YamlDotNet.Serialization.ValueDeserializers
 
             try
             {
+                if (parser.Current is Scalar)
+                {
+                    var scalar = (Scalar)parser.Current;
+                    if (scalar.Tag == "!include" && !string.IsNullOrEmpty(scalar.Value))
+                    {
+                        if (File.Exists(scalar.Value))
+                        {
+                            var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
+                                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                                    .Build();
+                            parser.MoveNext();
+                            return deserializer.Deserialize(File.ReadAllText(scalar.Value), expectedType);
+                        }
+                        else
+                        {
+                            throw new Exception($"Arquivo {scalar.Value} não encontrado");
+                        }
+                    }
+                }
+
                 foreach (var deserializer in deserializers)
                 {
-                    if (deserializer.Deserialize(parser, nodeType, (r, t) => nestedObjectDeserializer.DeserializeValue(r, t, state, nestedObjectDeserializer), out var value))
+                    if (deserializer.Deserialize(parser, nodeType, (r, t) => nestedObjectDeserializer.DeserializeValue(r, t, state, nestedObjectDeserializer), out var value, deserializers))
                     {
                         return TypeConverter.ChangeType(value, expectedType);
                     }

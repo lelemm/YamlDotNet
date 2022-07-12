@@ -64,7 +64,8 @@ namespace YamlDotNet.Serialization
                 { JsonSchema.Tags.Bool, typeof(bool) },
                 { JsonSchema.Tags.Float, typeof(double) },
                 { JsonSchema.Tags.Int, typeof(int) },
-                { DefaultSchema.Tags.Timestamp, typeof(DateTime) }
+                { DefaultSchema.Tags.Timestamp, typeof(DateTime) },
+                { new TagName("!include"), typeof(object) }
             };
 
             typeInspectorFactories.Add(typeof(CachedTypeInspector), inner => new CachedTypeInspector(inner));
